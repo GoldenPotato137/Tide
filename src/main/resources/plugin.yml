@@ -1,0 +1,10 @@
+name: Tide
+version: '${project.version}'
+main: cn.goldenpotato.tide.Tide
+api-version: 1.14
+authors: [ goldenpotato137@gmail.com ]
+softdepend: [Multiverse-Core]
+commands:
+  tide:
+    description: "Tide"
+    usage: "/tide"

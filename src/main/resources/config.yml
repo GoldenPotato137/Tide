@@ -1,0 +1,69 @@
+#语言
+Language: zh-CN
+
+#自动生成潮汐点的世界
+AutoGenerate: []
+#每个潮汐点的水流计算半径
+FlowRange: 100
+#潮汐点最近玩家距离，超过该距离的潮汐点不会更新
+CalcRange: 200
+#是否在控制台显示计算进度
+DisplayCalcInfo: true
+
+#潮汐时刻
+#每一个小时对应1000tick，早上七点为0tick，依次类推，比如说早上八点为8000tick
+#容易计算，每一分钟对应16.7tick
+#level表示距离初始海平面的潮汐高度差，正数表示高于初始海平面，负数表示低于初始海平面
+#非特殊世界不建议高于初始海平面，容易水漫金山
+Tide:
+  0:
+    level: 0
+  1000:
+    level: 0
+  2000:
+    level: 0
+  3000:
+    level: -1
+  4000:
+    level: -1
+  5000:
+    level: -1
+  6000:
+    level: -2
+  7000:
+    level: -2
+  8000:
+    level: -2
+  9000:
+    level: -3
+  10000:
+    level: -3
+  11000:
+    level: -3
+  12000:
+    level: -2
+  13000:
+    level: -2
+  14000:
+    level: -2
+  15000:
+    level: -1
+  16000:
+    level: -1
+  17000:
+    level: -1
+  18000:
+    level: 0
+  19000:
+    level: 0
+  20000:
+    level: 0
+  21000:
+    level: 0
+#    level: 1
+  22000:
+    level: 0
+#    level: 1
+  23000:
+    level: 0
+#    level: 1
