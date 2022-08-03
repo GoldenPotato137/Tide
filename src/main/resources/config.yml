@@ -1,20 +1,32 @@
-#语言
-Language: zh-CN
+#简体中文：zh-CN
+#English: en-US
+Language: en-US
 
 #自动生成潮汐点的世界
+#Worlds where tide points are automatically generated
 AutoGenerate: []
+
 #每个潮汐点的水流计算半径
+#water calculation radius for each tide point
 FlowRange: 100
+
 #潮汐点最近玩家距离，超过该距离的潮汐点不会更新
+#the maximum distance between a player and a tide point, if the distance is greater than this value, the tide point will not be updated
 CalcRange: 200
+
 #是否在控制台显示计算进度
+#whether to display the calculation progress in the console
 DisplayCalcInfo: true
 
 #潮汐时刻
-#每一个小时对应1000tick，早上七点为0tick，依次类推，比如说早上八点为8000tick
-#容易计算，每一分钟对应16.7tick
-#level表示距离初始海平面的潮汐高度差，正数表示高于初始海平面，负数表示低于初始海平面
+#Tide time
+#每一个小时对应1000tick，早上七点为0tick，依次类推，比如说早上八点为1000tick
+#Every hour corresponds to 1000 tick, 0 tick at 7:00 in the morning, and so on, for example, 1000 tick at 8:00 in the morning
+#Level表示距离初始海平面的潮汐高度差，正数表示高于初始海平面，负数表示低于初始海平面
+#Level represents the tidal height difference from the initial sea level,
+#a positive number means higher than the initial sea level, and a negative number means lower than the initial sea level
 #非特殊世界不建议高于初始海平面，容易水漫金山
+#Non-special world is not recommended to be higher than the initial sea level, easy causing flood
 Tide:
   0:
     level: 0
