@@ -8,19 +8,19 @@ import org.bukkit.event.block.FluidLevelChangeEvent;
 
 public class WaterListener implements Listener
 {
+    public static boolean doWaterFlow = true;
+
     @EventHandler
     public void onWaterSpread(BlockFromToEvent e)
     {
-        if(!Tide.doWaterFlow)
-            e.setCancelled(true);
-        if(e.getBlock().getBiome().toString().contains("OCEAN"))
+        if(!doWaterFlow)
             e.setCancelled(true);
     }
 
     @EventHandler
     public void onWaterChange(FluidLevelChangeEvent e)
     {
-        if(!Tide.doWaterFlow)
+        if(!doWaterFlow)
             e.setCancelled(true);
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 public class Config
 {
     public String language;
-    public List<World> worlds;
+    public List<String> worlds;
     public int flowRange;
     public int calcRange;
     public boolean displayCalcInfo;

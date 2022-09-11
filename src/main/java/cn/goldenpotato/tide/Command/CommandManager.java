@@ -28,6 +28,8 @@ public class CommandManager implements CommandExecutor, TabCompleter
         subCommands.add(new Save());
         subCommands.add(new Status());
         subCommands.add(new Time());
+        subCommands.add(new Temp());
+        subCommands.add(new Temp2());
     }
 
     @Override

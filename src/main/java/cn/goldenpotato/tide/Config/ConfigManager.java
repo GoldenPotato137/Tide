@@ -33,12 +33,8 @@ public class ConfigManager
         Util.Log("Using locale: " + config.language);
 
         //AutoGenerate
-        List<String> worlds = reader.getStringList("AutoGenerate");
-        config.worlds = new ArrayList<>();
-        for (String s : worlds)
-            if(Bukkit.getWorld(s)!=null)
-                config.worlds.add(Bukkit.getWorld(s));
-        Tide.tideSystem.SetAutoWorld();
+        config.worlds = reader.getStringList("AutoGenerate");
+
         //Range
         config.flowRange = reader.getInt("FlowRange", 100);
         config.calcRange = reader.getInt("CalcRange", 300);
@@ -69,10 +65,7 @@ public class ConfigManager
     static public void Save()
     {
         FileConfiguration writer = Tide.instance.getConfig();
-        List<String> temp = new ArrayList<>();
-        for (World world : config.worlds)
-            temp.add(world.getName());
-        writer.set("AutoGenerate", temp);
+        writer.set("AutoGenerate", config.worlds);
         Tide.instance.saveConfig();
     }
 }
