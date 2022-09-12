@@ -6,8 +6,6 @@ public class Config
 {
     public String language;
     public List<String> worlds;
-    public int flowRange;
-    public int calcRange;
-    public boolean displayCalcInfo;
     public int maxTimeConsume;
+    public boolean debug;
 }

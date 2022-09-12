@@ -2,8 +2,8 @@ package cn.goldenpotato.tide.Command.SubCommands;
 
 import cn.goldenpotato.tide.Command.SubCommand;
 import cn.goldenpotato.tide.Config.MessageManager;
-import cn.goldenpotato.tide.Tide;
 import cn.goldenpotato.tide.Util.Util;
+import cn.goldenpotato.tide.Water.TideSystem;
 import cn.goldenpotato.tide.Water.TideTime;
 import org.bukkit.entity.Player;
 
@@ -22,17 +22,17 @@ public class Time extends SubCommand
     public void onCommand(Player player, String[] args)
     {
         Util.Message(player, MessageManager.msg.SubCommand_Time + Util.TickToTime(player.getWorld().getTime()));
-        if (Tide.tideSystem.tideTime.size() == 0) return;
+        if (TideSystem.tideTime.size() == 0) return;
         long tickNow = player.getWorld().getTime();
         TideTime time = null;
-        for (TideTime t : Tide.tideSystem.tideTime)
+        for (TideTime t : TideSystem.tideTime)
             if (tickNow < t.tick)
             {
                 time = t;
                 break;
             }
         if (time == null)
-            time = Tide.tideSystem.tideTime.get(0);
+            time = TideSystem.tideTime.get(0);
         String sTime = Util.TickToTime(time.tick) + " " + (time.level > 0 ? "+" : "") + time.level;
         Util.Message(player, MessageManager.msg.SubCommand_Time_NextTide + sTime);
     }

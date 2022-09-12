@@ -1,12 +1,10 @@
 package cn.goldenpotato.tide.Listener;
 
 import cn.goldenpotato.tide.Config.ConfigManager;
-import cn.goldenpotato.tide.Util.Util;
 import cn.goldenpotato.tide.Water.ChunkData;
 import cn.goldenpotato.tide.Water.ChunkLocation;
 import cn.goldenpotato.tide.Water.TideSystem;
 import cn.goldenpotato.tide.Water.WaterCalculator;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -44,7 +42,7 @@ public class ChunkListener implements Listener
         if(!ConfigManager.config.worlds.contains(e.getWorld().getName()))
             return;
 
-        Util.Log(ChatColor.RED + "卸载chunk: " + e.getChunk().getX() + " " + e.getChunk().getZ());
+//        Util.Log(ChatColor.RED + "卸载chunk: " + e.getChunk().getX() + " " + e.getChunk().getZ()); //Debug用
         int[] dx={-1,1,0,0},dz={0,0,-1,1};
         for(int i=0;i<4;i++)
         {

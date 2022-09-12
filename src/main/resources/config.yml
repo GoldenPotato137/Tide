@@ -2,9 +2,9 @@
 #English: en-US
 Language: en-US
 
-#自动生成潮汐点的世界
-#Worlds where tide points are automatically generated
-AutoGenerate: []
+#启用潮汐系统的插件
+#Worlds with tide system on
+Worlds: []
 
 #是否在控制台显示计算进度
 #whether to display the calculation progress in the console
@@ -75,3 +75,6 @@ Tide:
   23000:
     level: 0
 #    level: 1
+
+#Debug
+Debug: false

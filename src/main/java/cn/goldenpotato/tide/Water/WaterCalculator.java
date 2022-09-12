@@ -34,7 +34,7 @@ public class WaterCalculator
                 {
                     if (System.currentTimeMillis() - startTime > ConfigManager.config.maxTimeConsume)
                     {
-                        Util.Log("WaterCalculator: Time out" + (System.currentTimeMillis() - startTime));
+//                        Util.Log("WaterCalculator: Time out" + (System.currentTimeMillis() - startTime)); //Debug用
                         return;
                     }
                     Chunk chunk = _updateQueue.poll();
@@ -76,18 +76,18 @@ public class WaterCalculator
             boolean flag = false;
             if (!_firstUpdate)
             {
-                if (y >= world.getSeaLevel() + TideSystem.SeaLevel() && block.getType() != Material.WATER) flag=true;
-                if (y < world.getSeaLevel() + TideSystem.SeaLevel() && block.getType() != Material.AIR) flag=true;
+                if (y >= world.getSeaLevel() + TideSystem.SeaLevel(world) && block.getType() != Material.WATER) flag=true;
+                if (y < world.getSeaLevel() + TideSystem.SeaLevel(world) && block.getType() != Material.AIR) flag=true;
             }
             else if (block.getType() != Material.WATER && !IsAirBlock(block.getType()))
                 flag=true;
             if (y == 0) flag=true;
 
             if ((tx == 0 || tx == 15 || tz == 0 || tz == 15) && (block.getType() == Material.WATER || block.getType() == Material.AIR))
-                block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel() ? Material.AIR : Material.WATER);
+                block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel(world) ? Material.AIR : Material.WATER);
             if(flag) continue;
 
-            block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel() ? Material.AIR : Material.WATER);
+            block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel(world) ? Material.AIR : Material.WATER);
             _firstUpdate = false;
             int[] dx = {-1, 1, 0, 0, 0, 0}, dy = {0, 0, -1, 1, 0, 0}, dz = {0, 0, 0, 0, -1, 1};
             for (int i = 0; i < 6; i++)
@@ -149,26 +149,27 @@ public class WaterCalculator
         boolean needUpdateNearby = false;
         if (data.isInner == 1) //内陆区块
         {
-            chunk.getBlock(0, 70, 0).setType(Material.ORANGE_WOOL);
+//            chunk.getBlock(0, 70, 0).setType(Material.ORANGE_WOOL); //Debug用
             needUpdateNearby = true;
-            if (flag)
+            if (flag && ConfigManager.config.debug)
                 Util.Log(ChatColor.YELLOW + "内陆区块更新" + chunk.getX() + " " + chunk.getZ());
         }
-        else if (data.lastUpdated != TideSystem.LastUpdate())//水源区块
+        else if (data.seaLevel != TideSystem.SeaLevel(world))//水源区块
         {
-            Util.Log(ChatColor.GREEN + "正在计算chunk: " + chunk.getX() + " " + chunk.getZ());
-            chunk.getBlock(0, 70, 0).setType(Material.BLUE_WOOL);
+            if(ConfigManager.config.debug)
+                Util.Log(ChatColor.GREEN + "正在计算chunk: " + chunk.getX() + " " + chunk.getZ());
+//            chunk.getBlock(0, 70, 0).setType(Material.BLUE_WOOL); //Debug用
             for (int dx = 0; dx < 16; dx++)
                 for (int dz = 0; dz < 16; dz++)
-                    if (!_vis[dx][world.getSeaLevel() + TideSystem.SeaLevel()][dz] && (IsNatureWater(chunk.getBlock(dx, world.getSeaLevel(), dz).getBiome())))
+                    if (!_vis[dx][world.getSeaLevel() + TideSystem.SeaLevel(world)][dz] && (IsNatureWater(chunk.getBlock(dx, world.getSeaLevel(), dz).getBiome())))
                     {
                         _firstUpdate = true;
-                        Calc(dx, world.getSeaLevel() + TideSystem.SeaLevel(), dz, chunk);
+                        Calc(dx, world.getSeaLevel() + TideSystem.SeaLevel(world), dz, chunk);
                     }
             needUpdateNearby = true;
         }
 
-        data.lastUpdated = TideSystem.LastUpdate();
+        data.seaLevel = TideSystem.SeaLevel(world);
         data.toUpdate.clear();
 
         //更新邻接区块

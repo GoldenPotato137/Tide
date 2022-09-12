@@ -16,8 +16,6 @@ import java.util.Objects;
 public final class Tide extends JavaPlugin
 {
     public static Tide instance;
-    public static TideSystem tideSystem = new TideSystem();
-    public static boolean doWaterFlow = true;
 
     @Override
     public void onEnable()
@@ -37,6 +35,7 @@ public final class Tide extends JavaPlugin
         Objects.requireNonNull(Bukkit.getPluginCommand("tide")).setExecutor(new CommandManager());
 
         WaterCalculator.Init();
+        TideSystem.Init();
 
         //Metrics
         int pluginId = 15943;
@@ -49,6 +48,7 @@ public final class Tide extends JavaPlugin
     {
         // Plugin shutdown logic
         WaterCalculator.Stop();
+        TideSystem.Stop();
         Save();
     }
 
@@ -60,7 +60,7 @@ public final class Tide extends JavaPlugin
 
     public static void Save()
     {
-        Tide.tideSystem.Save();
+        TideSystem.Save();
         ConfigManager.Save();
     }
 }

@@ -10,8 +10,8 @@ public class ChunkData
     /** 四周有多少个chunk加载了*/
     public int loadedCount;
 
-    /** 该chunk上次更新时间*/
-    public int lastUpdated;
+    /** 该chunk当前海平面高度(水源chunk用)*/
+    public int seaLevel;
 
     /** 该chunk是否是内陆块,是1，不是0，尚未计算-1*/
     public int isInner;
@@ -23,7 +23,7 @@ public class ChunkData
     {
         isInner = -1;
         loadedCount = 0;
-        lastUpdated = 0;
+        seaLevel = -114514;
         toUpdate = new ArrayList<>();
     }
 }
