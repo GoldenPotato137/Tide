@@ -2,13 +2,11 @@ package cn.goldenpotato.tide.Config;
 
 import cn.goldenpotato.tide.Tide;
 import cn.goldenpotato.tide.Util.Util;
+import cn.goldenpotato.tide.Water.TideSystem;
 import cn.goldenpotato.tide.Water.TideTime;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigManager
@@ -32,20 +30,23 @@ public class ConfigManager
         config.language = reader.getString("Language", "zh-CN");
         Util.Log("Using locale: " + config.language);
 
-        //AutoGenerate
-        List<String> worlds = reader.getStringList("AutoGenerate");
-        config.worlds = new ArrayList<>();
-        for (String s : worlds)
-            if(Bukkit.getWorld(s)!=null)
-                config.worlds.add(Bukkit.getWorld(s));
-        Tide.tideSystem.SetAutoWorld();
-        //Range
-        config.flowRange = reader.getInt("FlowRange", 100);
-        config.calcRange = reader.getInt("CalcRange", 300);
-        //DisplayCalcInfo
-        config.displayCalcInfo = reader.getBoolean("DisplayCalcInfo", true);
+        //Worlds
+        config.worlds = reader.getStringList("Worlds");
+        if(reader.getStringList("AutoGenerate").size()!=0) //兼容旧版本
+        {
+            config.worlds = reader.getStringList("AutoGenerate");
+            reader.set("AutoGenerate", null);
+        }
+
+        //CalcTime
+        config.maxTimeConsume = reader.getInt("MaxTimeConsume", 10);
+
+        reader.set("DisplayCalcInfo", null); //删除旧版本的配置
+        reader.set("CalcRange", null); //删除旧版本的配置
+        reader.set("FlowRange", null); //删除旧版本的配置
+
         //Tide
-        List<TideTime> tideTime = Tide.tideSystem.tideTime;
+        List<TideTime> tideTime = TideSystem.tideTime;
         ConfigurationSection in = reader.getConfigurationSection("Tide");
         if (in != null)
         {
@@ -55,8 +56,7 @@ public class ConfigManager
                 try
                 {
                     time = Integer.parseInt(sTime);
-                }
-                catch (NumberFormatException e)
+                } catch (NumberFormatException e)
                 {
                     continue;
                 }
@@ -64,15 +64,17 @@ public class ConfigManager
             }
         }
         Util.Log(tideTime.size() + " tidal hour loaded");
+
+        //Debug
+        config.debug = reader.getBoolean("Debug", false);
     }
 
     static public void Save()
     {
         FileConfiguration writer = Tide.instance.getConfig();
-        List<String> temp = new ArrayList<>();
-        for (World world : config.worlds)
-            temp.add(world.getName());
-        writer.set("AutoGenerate", temp);
+        writer.set("Worlds", config.worlds);
+        writer.set("MaxTimeConsume", config.maxTimeConsume);
+        writer.set("Debug", config.debug);
         Tide.instance.saveConfig();
     }
 }

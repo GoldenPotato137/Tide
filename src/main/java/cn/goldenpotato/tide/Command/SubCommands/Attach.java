@@ -27,13 +27,12 @@ public class Attach extends SubCommand
         if(args.length!=0)
             world = Bukkit.getWorld(args[0]);
         if(world==null) return;
-        if(ConfigManager.config.worlds.contains(world))
+        if(ConfigManager.config.worlds.contains(world.getName()))
         {
             Util.Message(player,MessageManager.msg.SubCommand_Attach_Already);
             return;
         }
-        ConfigManager.config.worlds.add(world);
-        Tide.tideSystem.SetAutoWorld();
+        ConfigManager.config.worlds.add(world.getName());
         ConfigManager.Save();
         Util.Message(player,MessageManager.msg.Success);
     }

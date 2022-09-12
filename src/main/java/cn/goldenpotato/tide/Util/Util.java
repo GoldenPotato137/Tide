@@ -35,7 +35,7 @@ public class Util
 
     public static void Log(String s)
     {
-        Tide.instance.getLogger().info(ChatColor.translateAlternateColorCodes('&', s));
+        Tide.instance.getServer().getConsoleSender().sendMessage("[Tide] "+ChatColor.translateAlternateColorCodes('&', s));
     }
 
     static ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();

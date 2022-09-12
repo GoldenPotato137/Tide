@@ -2,8 +2,8 @@ package cn.goldenpotato.tide.Command.SubCommands;
 
 import cn.goldenpotato.tide.Command.SubCommand;
 import cn.goldenpotato.tide.Config.MessageManager;
-import cn.goldenpotato.tide.Tide;
 import cn.goldenpotato.tide.Util.Util;
+import cn.goldenpotato.tide.Water.TideSystem;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -20,22 +20,7 @@ public class Add extends SubCommand
     @Override
     public void onCommand(Player player, String[] args)
     {
-        int targetLevel;
-        if(args.length==0)
-            targetLevel = player.getWorld().getSeaLevel()-1;
-        else
-        {
-            try
-            {
-                targetLevel = Integer.parseInt(args[0]);
-            }
-            catch(NumberFormatException e)
-            {
-                Util.Message(player,MessageManager.msg.WrongNum);
-                return;
-            }
-        }
-        Tide.tideSystem.Add(player.getLocation(),targetLevel);
+        TideSystem.GetChunkData(player.getLocation().getChunk()).isInner = 0;
         Util.Message(player,MessageManager.msg.Success);
     }
 

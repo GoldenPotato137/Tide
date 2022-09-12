@@ -3,7 +3,7 @@ package cn.goldenpotato.tide;
 import cn.goldenpotato.tide.Command.CommandManager;
 import cn.goldenpotato.tide.Config.ConfigManager;
 import cn.goldenpotato.tide.Config.MessageManager;
-import cn.goldenpotato.tide.Listener.TickListener;
+import cn.goldenpotato.tide.Listener.ChunkListener;
 import cn.goldenpotato.tide.Listener.WaterListener;
 import cn.goldenpotato.tide.Metrics.Metrics;
 import cn.goldenpotato.tide.Water.TideSystem;
@@ -16,9 +16,7 @@ import java.util.Objects;
 public final class Tide extends JavaPlugin
 {
     public static Tide instance;
-    public static WaterCalculator waterCalculator = new WaterCalculator();
-    public static TideSystem tideSystem = new TideSystem();
-    public static boolean doWaterFlow = true;
+
     @Override
     public void onEnable()
     {
@@ -27,17 +25,17 @@ public final class Tide extends JavaPlugin
 
         //Load config
         Load();
-        tideSystem.Load();
 
         //Register events
         Bukkit.getPluginManager().registerEvents(new WaterListener(), this);
-        Bukkit.getPluginManager().registerEvents(new TickListener(),this);
+        Bukkit.getPluginManager().registerEvents(new ChunkListener(),this);
 
         //Register commands
         CommandManager.Init();
         Objects.requireNonNull(Bukkit.getPluginCommand("tide")).setExecutor(new CommandManager());
 
-        waterCalculator.StartCalc();
+        WaterCalculator.Init();
+        TideSystem.Init();
 
         //Metrics
         int pluginId = 15943;
@@ -49,7 +47,8 @@ public final class Tide extends JavaPlugin
     public void onDisable()
     {
         // Plugin shutdown logic
-        waterCalculator.StopCalc();
+        WaterCalculator.Stop();
+        TideSystem.Stop();
         Save();
     }
 
@@ -61,7 +60,7 @@ public final class Tide extends JavaPlugin
 
     public static void Save()
     {
-        Tide.tideSystem.Save();
+        TideSystem.Save();
         ConfigManager.Save();
     }
 }

@@ -1,154 +1,149 @@
 package cn.goldenpotato.tide.Water;
 
-import cn.goldenpotato.tide.Config.ConfigManager;
 import cn.goldenpotato.tide.Tide;
+import cn.goldenpotato.tide.Util.JsonUtil;
 import cn.goldenpotato.tide.Util.Util;
-import org.bukkit.*;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.generator.BlockPopulator;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TideSystem
 {
-    Map<World, List<TidePoint>> tidePoints = new HashMap<>();
-    public List<TideTime> tideTime = new ArrayList<>();
+    private static final Map<ChunkLocation, ChunkData> _chunkData = new HashMap<>();
+    private static final Map<World,Integer> _seaLevel = new HashMap<>();  //每个世界的海平面高度（偏移标准海平面的量）
+    private static final List<World> worlds = new ArrayList<>();
+    public static List<TideTime> tideTime = new ArrayList<>();
+    private static BukkitTask _tickTask;
 
-    public void Load()
+    /**
+     * 初始化
+     */
+    public static void Init()
     {
-        File file = new File(Tide.instance.getDataFolder(), "tide.yml");
-        if (!file.exists())
-            Tide.instance.saveResource("tide.yml", false);
-        FileConfiguration reader = YamlConfiguration.loadConfiguration(file);
-        if (reader.getConfigurationSection("Tide") == null)
-            return;
-        Util.Log("Loading tide points, please wait");
-        Queue<TidePoint> toInit = new LinkedList<>();
-        for (String no : Objects.requireNonNull(reader.getConfigurationSection("Tide")).getKeys(false))
+        _tickTask = new BukkitRunnable()
         {
-            ConfigurationSection in = reader.getConfigurationSection("Tide." + no);
-            if (in == null) continue;
-            World world = Bukkit.getWorld(Objects.requireNonNull(in.getString("world", "")));
-            if (world == null) continue;
-            int x = in.getInt("x", 0), y = in.getInt("y", 0), z = in.getInt("z", 0);
-            if (x == 0 && y == 0 && z == 0) continue;
-            List<TidePoint> list = tidePoints.computeIfAbsent(world, k -> new ArrayList<>());
-            TidePoint tp = new TidePoint(new Location(world, x, y, z), y);
-            list.add(tp);
-            toInit.add(tp);
-        }
-        Util.Log(toInit.size() + " tide points loaded");
-
-        new BukkitRunnable()
-        {
-            int cnt=0;
             @Override
             public void run()
             {
-                if(toInit.isEmpty())
-                {
-                    Util.Log("Tide points Initialized");
-                    cancel();
-                    return;
-                }
-                long time = System.currentTimeMillis();
-                for(int i=1;i<=200 && !toInit.isEmpty();i++)
-                {
-                    if(i%50==0 && System.currentTimeMillis()-time>=25)
-                        break;
-                    toInit.remove().Init();
-                }
-                if(ConfigManager.config.displayCalcInfo && cnt%5==0)
-                    Util.Log(String.format("Tide Points Initializing: %d left",toInit.size()));
-                cnt++;
+                Tick();
             }
-        }.runTaskTimer(Tide.instance, 10,20);
+        }.runTaskTimer(Tide.instance, 10, 1);
     }
 
-    public void Save()
+    /**
+     * 停止潮汐计算
+     */
+    public static void Stop()
     {
-        File file = new File(Tide.instance.getDataFolder(), "tide.yml");
-        if (!file.exists())
-            Tide.instance.saveResource("tide.yml", false);
-        int i = 0;
-        FileConfiguration writer = YamlConfiguration.loadConfiguration(file);
-        for (List<TidePoint> locations : tidePoints.values())
-            for (TidePoint tidePoint : locations)
+        if(_tickTask==null || _tickTask.isCancelled()) return;
+        _tickTask.cancel();
+    }
+
+    /**
+     * 加载世界及其chunk数据
+     */
+    public static void Load(World world)
+    {
+        Util.Log(ChatColor.GREEN + "Loading chunk data for " + world.getName());
+        File worldFolder = new File(Tide.instance.getDataFolder(), world.getName());
+        JsonArray array = JsonUtil.LoadJsonArray("inner-chunks.json", worldFolder);
+        for (JsonElement object : array)
+        {
+            int chunkX = object.getAsJsonObject().get("x").getAsInt();
+            int chunkZ = object.getAsJsonObject().get("z").getAsInt();
+            GetChunkData(world, chunkX, chunkZ).isInner = 1;
+        }
+        array = JsonUtil.LoadJsonArray("water-chunks.json", worldFolder);
+        for (JsonElement object : array)
+        {
+            int chunkX = object.getAsJsonObject().get("x").getAsInt();
+            int chunkZ = object.getAsJsonObject().get("z").getAsInt();
+            GetChunkData(world, chunkX, chunkZ).isInner = 0;
+        }
+        worlds.add(world);
+        _seaLevel.put(world, 0);
+    }
+
+    /**
+     * 保存所有世界的chunk数据
+     */
+    public static void Save()
+    {
+        Util.Log(ChatColor.GREEN + "Saving chunk data");
+        Map<String, JsonArray[]> output = new HashMap<>();
+        for (ChunkLocation chunk : _chunkData.keySet())
+        {
+            JsonArray[] out = output.get(chunk.world.getName());
+            if (out == null)
             {
-                ConfigurationSection out = writer.getConfigurationSection("Tide." + i);
-                if (out == null) out = writer.createSection("Tide." + i);
-                out.set("world", tidePoint.loc.getWorld().getName());
-                out.set("x", tidePoint.loc.getBlockX());
-                out.set("y", tidePoint.seaLevel);
-                out.set("z", tidePoint.loc.getBlockZ());
-                i++;
+                out = new JsonArray[2];
+                out[0] = new JsonArray();
+                out[1] = new JsonArray();
+                output.put(chunk.world.getName(), out);
             }
-
-        try
-        {
-            writer.save(file);
+            JsonObject tmp = new JsonObject();
+            tmp.addProperty("x", chunk.x);
+            tmp.addProperty("z", chunk.z);
+            out[GetChunkData(chunk.world, chunk.x, chunk.z).isInner == 1 ? 1 : 0].add(tmp);
         }
-        catch (Exception e)
+
+        for (String worldStr : output.keySet())
         {
-            e.printStackTrace();
-        }
-    }
-
-    public void Add(Location location)
-    {
-        List<TidePoint> list = tidePoints.computeIfAbsent(location.getWorld(), k -> new ArrayList<>());
-        location.setY(location.getWorld().getSeaLevel() - 1);
-        TidePoint temp = new TidePoint(location, location.getBlockY());
-        temp.init = true;
-        list.add(temp);
-    }
-
-    public void Add(Location location, int seaLevel)
-    {
-        List<TidePoint> list = tidePoints.computeIfAbsent(location.getWorld(), k -> new ArrayList<>());
-        location.setX(location.getBlockX());
-        location.setZ(location.getBlockZ());
-        list.add(new TidePoint(location, seaLevel).Init());
-    }
-
-    @SuppressWarnings("ForLoopReplaceableByForEach")
-    public void ChangeHeight(int targetHeight, World world)
-    {
-        int calcRange = ConfigManager.config.calcRange, flowRange = ConfigManager.config.flowRange;
-        List<TidePoint> list = tidePoints.get(world);
-        for (int i=0;i<list.size();i++)
-        {
-            TidePoint tidePoint = list.get(i);
-            if (tidePoint.init && tidePoint.loc.getNearbyPlayers(calcRange).size() != 0)
-            {
-                while (tidePoint.loc.getBlockY() != tidePoint.seaLevel + targetHeight)
-                {
-                    int delta = tidePoint.loc.getBlockY() > tidePoint.seaLevel + targetHeight ? -1 : 1;
-                    Location temp = tidePoint.loc.clone();
-                    if (delta > 0)
-                    {
-                        tidePoint.loc.setY(tidePoint.loc.getBlockY() + delta);
-                        temp.setY(tidePoint.loc.getBlockY());
-                        Tide.waterCalculator.Add(temp, Material.WATER, flowRange + (tidePoint.loc.getBlockY() - tidePoint.seaLevel));
-                    }
-                    else
-                    {
-                        Tide.waterCalculator.Add(temp, Material.AIR, flowRange + (tidePoint.loc.getBlockY() - tidePoint.seaLevel));
-                        tidePoint.loc.setY(tidePoint.loc.getBlockY() + delta);
-                    }
-                }
-            }
+            JsonUtil.SaveJson("inner-chunks.json", new File(Tide.instance.getDataFolder(), worldStr), output.get(worldStr)[1]);
+            JsonUtil.SaveJson("water-chunks.json", new File(Tide.instance.getDataFolder(), worldStr), output.get(worldStr)[0]);
         }
     }
 
-    public void Tick()
+    /***
+     * 修改指定世界海平面高度
+     * @param targetHeight 目标海平面高度
+     * @param world 世界
+     */
+    public static void ChangeHeight(int targetHeight, World world)
     {
-        for (World world : tidePoints.keySet())
+        _seaLevel.put(world, targetHeight);
+        for(Chunk chunk : world.getLoadedChunks())
+            WaterCalculator.AddUpdate(chunk);
+    }
+
+    /**获取指定chunk的chunk数据*/
+    public static ChunkData GetChunkData(World world, int x, int z)
+    {
+        ChunkData ans = _chunkData.get(new ChunkLocation(world, x, z));
+        if (ans == null)
+        {
+            ans = new ChunkData();
+            _chunkData.put(new ChunkLocation(world, x, z), ans);
+        }
+        return ans;
+    }
+
+    /**获取指定chunk的chunk数据*/
+    public static ChunkData GetChunkData(ChunkLocation chunkLocation)
+    {
+        return GetChunkData(chunkLocation.world, chunkLocation.x, chunkLocation.z);
+    }
+
+    /**获取指定chunk的chunk数据*/
+    public static ChunkData GetChunkData(Chunk chunk)
+    {
+        return GetChunkData(chunk.getWorld(), chunk.getX(), chunk.getZ());
+    }
+
+    private static void Tick()
+    {
+        for (World world : worlds)
             for (TideTime time : tideTime)
                 if (world.getTime() == time.tick)
                 {
@@ -157,45 +152,9 @@ public class TideSystem
                 }
     }
 
-    public static class TidePopulator extends BlockPopulator
+    /** 获取当前海平面高度*/
+    public static int SeaLevel(World world)
     {
-        @Override
-        public void populate(@NotNull World world, @NotNull Random random, @NotNull Chunk source)
-        {
-            int cntOcean = 0;
-            for (int x = 0; x < 16; x++)
-                for (int z = 0; z < 16; z++)
-                    if (source.getBlock(x, 64, z).getBiome().toString().contains("OCEAN"))
-                        cntOcean++;
-            if (cntOcean == 0 || cntOcean == 16 * 16) return; //大洋深处或内陆
-            Util.Log("Auto generate new tide point at x:" + source.getX() * 16 + " z:" + source.getZ() * 16);
-            for (int x = 0; x < 16; x++)
-                for (int z = 0; z < 16; z++)
-                    if (source.getBlock(x, 64, z).getBiome().toString().contains("OCEAN"))
-                    {
-                        Tide.tideSystem.Add(new Location(world, source.getX() * 16 + x, world.getSeaLevel() - 1, source.getZ() * 16 + z));
-                        return;
-                    }
-        }
-    }
-
-    public void SetAutoWorld()
-    {
-        StringBuilder result = new StringBuilder("[");
-        for (World world : ConfigManager.config.worlds)
-        {
-            boolean OK = true;
-            for (BlockPopulator bp : world.getPopulators())
-                if (bp instanceof TidePopulator)
-                {
-                    OK = false;
-                    break;
-                }
-            if (OK)
-                world.getPopulators().add(new TidePopulator());
-            result.append(world.getName()).append(" ");
-        }
-        result.append("]");
-        Util.Log("Auto set in worlds:" + result);
+        return _seaLevel.get(world);
     }
 }

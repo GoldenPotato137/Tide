@@ -22,10 +22,10 @@ public class CommandManager implements CommandExecutor, TabCompleter
     {
         subCommands = new ArrayList<>();
         subCommands.add(new Add());
-        subCommands.add(new Attach());
+//        subCommands.add(new Attach()); //暂时关闭此功能
         subCommands.add(new Help());
-        subCommands.add(new Reload());
-        subCommands.add(new Save());
+//        subCommands.add(new Reload()); //暂时关闭此功能
+//        subCommands.add(new Save()); //暂时关闭此功能
         subCommands.add(new Status());
         subCommands.add(new Time());
     }
