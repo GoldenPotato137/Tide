@@ -67,8 +67,6 @@ public class ConfigManager
 
         //Debug
         config.debug = reader.getBoolean("Debug", false);
-
-        Tide.instance.saveConfig();
     }
 
     static public void Save()

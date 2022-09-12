@@ -2,8 +2,10 @@
 #English: en-US
 Language: en-US
 
-#启用潮汐系统的插件
-#Worlds with tide system on
+#启用潮汐系统的世界(名字)
+#Worlds with tide system on (name)
+#Worlds:
+#  - world
 Worlds: []
 
 #是否在控制台显示计算进度
