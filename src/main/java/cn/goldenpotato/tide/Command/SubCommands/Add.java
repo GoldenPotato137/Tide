@@ -3,7 +3,7 @@ package cn.goldenpotato.tide.Command.SubCommands;
 import cn.goldenpotato.tide.Command.SubCommand;
 import cn.goldenpotato.tide.Config.MessageManager;
 import cn.goldenpotato.tide.Util.Util;
-import org.bukkit.block.Biome;
+import cn.goldenpotato.tide.Water.TideSystem;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class Add extends SubCommand
     @Override
     public void onCommand(Player player, String[] args)
     {
-        player.getLocation().getBlock().setBiome(Biome.RIVER);
+        TideSystem.GetChunkData(player.getLocation().getChunk()).isInner = 0;
         Util.Message(player,MessageManager.msg.Success);
     }
 
