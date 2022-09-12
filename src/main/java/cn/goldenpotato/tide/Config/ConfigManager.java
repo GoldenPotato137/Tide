@@ -3,12 +3,9 @@ package cn.goldenpotato.tide.Config;
 import cn.goldenpotato.tide.Tide;
 import cn.goldenpotato.tide.Util.Util;
 import cn.goldenpotato.tide.Water.TideTime;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigManager
@@ -35,11 +32,12 @@ public class ConfigManager
         //AutoGenerate
         config.worlds = reader.getStringList("AutoGenerate");
 
-        //Range
-        config.flowRange = reader.getInt("FlowRange", 100);
-        config.calcRange = reader.getInt("CalcRange", 300);
+        //CalcTime
+        config.maxTimeConsume = reader.getInt("MaxTimeConsume", 10);
+
         //DisplayCalcInfo
         config.displayCalcInfo = reader.getBoolean("DisplayCalcInfo", true);
+
         //Tide
         List<TideTime> tideTime = Tide.tideSystem.tideTime;
         ConfigurationSection in = reader.getConfigurationSection("Tide");
@@ -66,6 +64,7 @@ public class ConfigManager
     {
         FileConfiguration writer = Tide.instance.getConfig();
         writer.set("AutoGenerate", config.worlds);
+        writer.set("MaxTimeConsume", config.maxTimeConsume);
         Tide.instance.saveConfig();
     }
 }

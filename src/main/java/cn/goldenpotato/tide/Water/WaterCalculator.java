@@ -1,13 +1,12 @@
 package cn.goldenpotato.tide.Water;
 
+import cn.goldenpotato.tide.Config.ConfigManager;
 import cn.goldenpotato.tide.Listener.WaterListener;
 import cn.goldenpotato.tide.Tide;
 import cn.goldenpotato.tide.Util.Util;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -29,13 +28,20 @@ public class WaterCalculator
             @Override
             public void run()
             {
+                long startTime = System.currentTimeMillis();
+                WaterListener.doWaterFlow = _updateQueue.isEmpty();
                 while (!_updateQueue.isEmpty())
                 {
+                    if (System.currentTimeMillis() - startTime > ConfigManager.config.maxTimeConsume)
+                    {
+                        Util.Log("WaterCalculator: Time out" + (System.currentTimeMillis() - startTime));
+                        return;
+                    }
                     Chunk chunk = _updateQueue.poll();
                     UpdateChunk(chunk);
                 }
             }
-        }.runTaskTimer(Tide.instance, 20, 20);
+        }.runTaskTimer(Tide.instance, 20, 1);
     }
 
     public static void Stop()
@@ -51,32 +57,38 @@ public class WaterCalculator
 
     private static boolean IsAirBlock(Material type)
     {
-        return type==Material.AIR || type==Material.GRASS || type==Material.TALL_GRASS;
+        return type == Material.AIR || type == Material.GRASS || type == Material.TALL_GRASS;
     }
 
     private static void Calc(int tx, int ty, int tz, Chunk chunk)
     {
         Queue<Vector> queue = new LinkedList<>();
-        queue.add(new Vector(tx,ty,tz));
-        while(!queue.isEmpty())
+        queue.add(new Vector(tx, ty, tz));
+        while (!queue.isEmpty())
         {
             Vector pos = queue.poll();
-            int x = pos.getBlockX(),y= pos.getBlockY(),z=pos.getBlockZ();
+            int x = pos.getBlockX(), y = pos.getBlockY(), z = pos.getBlockZ();
             _vis[x][y][z] = true;
             Block block = chunk.getBlock(x, y, z);
             World world = chunk.getWorld();
-            boolean tmpFirstUpdate = _firstUpdate;
-            if(!_firstUpdate)
-            {
-                if (y >= world.getSeaLevel() + TideSystem.SeaLevel() && block.getType() != Material.WATER) continue;
-                if (y < world.getSeaLevel() + TideSystem.SeaLevel() && block.getType() != Material.AIR) continue;
-            }
-            else if(block.getType() != Material.WATER && !IsAirBlock(block.getType()))
-                continue;
-            if(y==0) continue;
 
-            _firstUpdate=false;
+            boolean tmpFirstUpdate = _firstUpdate;
+            boolean flag = false;
+            if (!_firstUpdate)
+            {
+                if (y >= world.getSeaLevel() + TideSystem.SeaLevel() && block.getType() != Material.WATER) flag=true;
+                if (y < world.getSeaLevel() + TideSystem.SeaLevel() && block.getType() != Material.AIR) flag=true;
+            }
+            else if (block.getType() != Material.WATER && !IsAirBlock(block.getType()))
+                flag=true;
+            if (y == 0) flag=true;
+
+            if ((tx == 0 || tx == 15 || tz == 0 || tz == 15) && (block.getType() == Material.WATER || block.getType() == Material.AIR))
+                block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel() ? Material.AIR : Material.WATER);
+            if(flag) continue;
+
             block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel() ? Material.AIR : Material.WATER);
+            _firstUpdate = false;
             int[] dx = {-1, 1, 0, 0, 0, 0}, dy = {0, 0, -1, 1, 0, 0}, dz = {0, 0, 0, 0, -1, 1};
             for (int i = 0; i < 6; i++)
                 if (Check(x + dx[i], z + dz[i]))
@@ -106,6 +118,7 @@ public class WaterCalculator
 
     /**
      * 将该chunk加入更新队列
+     *
      * @param chunk 要更新的chunk
      */
     public static void AddUpdate(Chunk chunk)
@@ -119,7 +132,6 @@ public class WaterCalculator
         if (data.loadedCount != 4) return; //如果周围有未加载的chunk，不更新
         if (data.isInner == 1 && data.toUpdate.size() == 0) return; //内陆块需要由相邻块更新
 
-        WaterListener.doWaterFlow = false;
         World world = chunk.getWorld();
         _vis = new boolean[16][world.getMaxHeight()][16];
         boolean flag = false;
@@ -142,7 +154,7 @@ public class WaterCalculator
             if (flag)
                 Util.Log(ChatColor.YELLOW + "内陆区块更新" + chunk.getX() + " " + chunk.getZ());
         }
-        else if(data.lastUpdated != TideSystem.LastUpdate())//水源区块
+        else if (data.lastUpdated != TideSystem.LastUpdate())//水源区块
         {
             Util.Log(ChatColor.GREEN + "正在计算chunk: " + chunk.getX() + " " + chunk.getZ());
             chunk.getBlock(0, 70, 0).setType(Material.BLUE_WOOL);
@@ -158,10 +170,9 @@ public class WaterCalculator
 
         data.lastUpdated = TideSystem.LastUpdate();
         data.toUpdate.clear();
-        WaterListener.doWaterFlow = true;
 
         //更新邻接区块
-        if(needUpdateNearby)
+        if (needUpdateNearby)
         {
             int[] dxChunk = {-1, 1, 0, 0}, dzChunk = {0, 0, -1, 1};
             for (int i = 0; i < 4; i++)

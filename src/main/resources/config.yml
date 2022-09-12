@@ -6,17 +6,13 @@ Language: en-US
 #Worlds where tide points are automatically generated
 AutoGenerate: []
 
-#每个潮汐点的水流计算半径
-#water calculation radius for each tide point
-FlowRange: 100
-
-#潮汐点最近玩家距离，超过该距离的潮汐点不会更新
-#the maximum distance between a player and a tide point, if the distance is greater than this value, the tide point will not be updated
-CalcRange: 200
-
 #是否在控制台显示计算进度
 #whether to display the calculation progress in the console
 DisplayCalcInfo: true
+
+#每tick允许的最长计算时间，单位毫秒
+#The longest calculation time allowed per tick, in milliseconds
+MaxTimeConsume: 10
 
 #潮汐时刻
 #Tide time
