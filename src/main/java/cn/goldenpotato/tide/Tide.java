@@ -6,6 +6,7 @@ import cn.goldenpotato.tide.Config.MessageManager;
 import cn.goldenpotato.tide.Listener.ChunkListener;
 import cn.goldenpotato.tide.Listener.WaterListener;
 import cn.goldenpotato.tide.Metrics.Metrics;
+import cn.goldenpotato.tide.Papi.PapiManager;
 import cn.goldenpotato.tide.Water.TideSystem;
 import cn.goldenpotato.tide.Water.WaterCalculator;
 import org.bukkit.Bukkit;
@@ -36,6 +37,16 @@ public final class Tide extends JavaPlugin
 
         WaterCalculator.Init();
         TideSystem.Init();
+
+        //Register Papi
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI")!=null)
+        {
+            new PapiManager().register();
+            if (ConfigManager.config.debug)
+                getLogger().info("PlaceholderAPI found, registered.");
+        }
+        else if (ConfigManager.config.debug)
+            getLogger().info("PlaceholderAPI not found.");
 
         //Metrics
         int pluginId = 15943;

@@ -163,6 +163,34 @@ public class TideSystem
     }
 
     /**
+     * 获取下一次潮汐变化的TideTime
+     * @param tickNow 当前时间
+     */
+    public static TideTime NextTide(long tickNow)
+    {
+        TideTime time = null;
+        for (TideTime t : TideSystem.tideTime)
+            if (tickNow < t.tick)
+            {
+                time = t;
+                break;
+            }
+        if (time == null)
+            time = TideSystem.tideTime.get(0);
+        return time;
+    }
+
+    /**
+     * 获取下一次潮汐变化的tick
+     * @param tickNow 当前时间
+     */
+    public static long NextTideCD(long tickNow)
+    {
+        TideTime ans = NextTide(tickNow);
+        return ans.tick >= tickNow ? ans.tick - tickNow : 24000 - tickNow + ans.tick;
+    }
+
+    /**
      * 计算引用计数（运行时加载世界时调用）
      * @param world 世界
      */
