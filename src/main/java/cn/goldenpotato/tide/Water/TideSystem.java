@@ -11,6 +11,7 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,8 +53,9 @@ public class TideSystem
 
     /**
      * 加载世界及其chunk数据
+     * @param world 世界
      */
-    public static void Load(World world)
+    public static void Load(@NotNull World world)
     {
         if(worlds.contains(world)) return; //已经加载过了
 
@@ -158,5 +160,23 @@ public class TideSystem
     public static int SeaLevel(World world)
     {
         return _seaLevel.get(world);
+    }
+
+    /**
+     * 计算引用计数（运行时加载世界时调用）
+     * @param world 世界
+     */
+    public static void CalcNearbyChunk(@NotNull World world)
+    {
+        for(Chunk chunk : world.getLoadedChunks())
+        {
+            int[] dx={-1,1,0,0},dz={0,0,-1,1};
+            for(int i=0;i<4;i++)
+            {
+                ChunkLocation nearbyChunkLoc = new ChunkLocation(world,chunk.getX()+dx[i],chunk.getZ()+dz[i]);
+                ChunkData nearbyChunk = TideSystem.GetChunkData(nearbyChunkLoc);
+                nearbyChunk.loadedCount++;
+            }
+        }
     }
 }

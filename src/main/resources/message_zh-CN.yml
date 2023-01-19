@@ -1,5 +1,6 @@
 NoPermission: "§c你没有使用该指令的权限"
 NoCommandInConsole: "§c控制台不能使用指令"
+NoSuchWorld: "§c找不到该世界: %world%"
 WrongNum: "§c参数错误"
 Success: "§a成功！"
 SubCommand_Add_Usage: "§a用法: /tide add：将所在位置设置为水源"

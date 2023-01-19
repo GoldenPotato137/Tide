@@ -4,6 +4,7 @@ public class Message
 {
     public String NoCommandInConsole;
     public String NoPermission;
+    public String NoSuchWorld;
     public String WrongNum;
     public String Success;
     public String SubCommand_Add_Usage;
