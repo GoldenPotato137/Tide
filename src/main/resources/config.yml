@@ -16,8 +16,8 @@ MaxTimeConsume: 10
 
 #潮汐时刻
 #Tide time
-#每一个小时对应1000tick，早上七点为0tick，依次类推，比如说早上八点为1000tick
-#Every hour corresponds to 1000 tick, 0 tick at 7:00 in the morning, and so on, for example, 1000 tick at 8:00 in the morning
+#每一个小时对应1000tick，早上六点为0tick，依次类推，比如说早上七点为1000tick
+#Every hour corresponds to 1000 tick, 0 tick at 6:00 in the morning, and so on, for example, 1000 tick at 7:00 in the morning
 #Level表示距离初始海平面的潮汐高度差，正数表示高于初始海平面，负数表示低于初始海平面
 #Level represents the tidal height difference from the initial sea level,
 #a positive number means higher than the initial sea level, and a negative number means lower than the initial sea level
