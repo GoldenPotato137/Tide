@@ -3,6 +3,7 @@
 
 NoPermission: "§cYou don't have permission to use this command."
 NoCommandInConsole: "§cYou can't use command in the console."
+NoSuchWorld: "§cWorld not found: %world%"
 WrongNum: "§cWrong number."
 Success: "§aSuccess."
 SubCommand_Add_Usage: "§aUsage: /tide add：Set current location as water source"

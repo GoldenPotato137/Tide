@@ -85,6 +85,7 @@ public class MessageManager
     {
         msg.NoPermission = GetString("NoPermission");
         msg.NoCommandInConsole =  GetString("NoCommandInConsole");
+        msg.NoSuchWorld = GetString("NoSuchWorld");
         msg.WrongNum = GetString("WrongNum");
         msg.Success = GetString("Success");
         msg.SubCommand_Add_Usage = GetString("SubCommand_Add_Usage");

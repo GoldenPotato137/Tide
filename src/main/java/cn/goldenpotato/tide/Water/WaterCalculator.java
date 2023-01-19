@@ -55,9 +55,26 @@ public class WaterCalculator
         return x >= 0 && x < 16 && z >= 0 && z < 16;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean IsAirBlock(Material type)
     {
         return type == Material.AIR || type == Material.GRASS || type == Material.TALL_GRASS;
+    }
+
+    private static boolean IsWaterBlock(Material type)
+    {
+        if(type == Material.WATER) return true;
+        else if (ConfigManager.config.removeWaterLog)
+            return type == Material.BUBBLE_COLUMN || type == Material.KELP_PLANT || type == Material.KELP || type == Material.SEAGRASS || type == Material.TALL_SEAGRASS;
+        return false;
+    }
+
+    private static void ChangeBlock(Block block, int y,int seaLevel)
+    {
+        if(y >= seaLevel && IsWaterBlock(block.getType()))
+            block.setType(Material.AIR);
+        else if(y < seaLevel && IsAirBlock(block.getType()))
+            block.setType(Material.WATER);
     }
 
     private static void Calc(int tx, int ty, int tz, Chunk chunk)
@@ -73,21 +90,21 @@ public class WaterCalculator
             World world = chunk.getWorld();
 
             boolean tmpFirstUpdate = _firstUpdate;
-            boolean flag = false;
+            boolean flag = false; //是否跳过替换
             if (!_firstUpdate)
             {
-                if (y >= world.getSeaLevel() + TideSystem.SeaLevel(world) && block.getType() != Material.WATER) flag=true;
-                if (y < world.getSeaLevel() + TideSystem.SeaLevel(world) && block.getType() != Material.AIR) flag=true;
+                if (y >= world.getSeaLevel() + TideSystem.SeaLevel(world) && !IsWaterBlock(block.getType())) flag=true;
+                if (y < world.getSeaLevel() + TideSystem.SeaLevel(world) && !IsAirBlock(block.getType())) flag=true;
             }
-            else if (block.getType() != Material.WATER && !IsAirBlock(block.getType()))
+            else if (block.getType() != Material.WATER && !IsAirBlock(block.getType())) //firstUpdate
                 flag=true;
             if (y == 0) flag=true;
 
             if ((tx == 0 || tx == 15 || tz == 0 || tz == 15) && (block.getType() == Material.WATER || block.getType() == Material.AIR))
-                block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel(world) ? Material.AIR : Material.WATER);
+                ChangeBlock(block, y, world.getSeaLevel() + TideSystem.SeaLevel(world));
             if(flag) continue;
 
-            block.setType(y >= world.getSeaLevel() + TideSystem.SeaLevel(world) ? Material.AIR : Material.WATER);
+            ChangeBlock(block, y, world.getSeaLevel() + TideSystem.SeaLevel(world));
             _firstUpdate = false;
             int[] dx = {-1, 1, 0, 0, 0, 0}, dy = {0, 0, -1, 1, 0, 0}, dz = {0, 0, 0, 0, -1, 1};
             for (int i = 0; i < 6; i++)

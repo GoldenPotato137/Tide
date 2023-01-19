@@ -60,7 +60,7 @@ public class Util
 
     public static String TickToTime(long tick)
     {
-        long hour = (tick / 1000 + 7) % 24;
+        long hour = (tick / 1000 + 6) % 24;
         long minute = (int)((float)(tick % 1000) / (1000.0/60));
         return String.format("%02d:%02d", hour, minute);
     }

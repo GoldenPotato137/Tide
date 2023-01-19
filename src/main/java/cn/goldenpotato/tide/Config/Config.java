@@ -8,4 +8,5 @@ public class Config
     public List<String> worlds;
     public int maxTimeConsume;
     public boolean debug;
+    public boolean removeWaterLog;
 }

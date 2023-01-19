@@ -3,7 +3,6 @@ package cn.goldenpotato.tide.Command.SubCommands;
 import cn.goldenpotato.tide.Command.SubCommand;
 import cn.goldenpotato.tide.Config.ConfigManager;
 import cn.goldenpotato.tide.Config.MessageManager;
-import cn.goldenpotato.tide.Tide;
 import cn.goldenpotato.tide.Util.Util;
 import cn.goldenpotato.tide.Water.TideSystem;
 import org.bukkit.Bukkit;
@@ -33,8 +32,10 @@ public class Attach extends SubCommand
             Util.Message(player,MessageManager.msg.SubCommand_Attach_Already);
             return;
         }
+        ConfigManager.config.worlds.add(world.getName());
         TideSystem.Load(world);
         ConfigManager.Save();
+        TideSystem.CalcNearbyChunk(world);
         Util.Message(player,MessageManager.msg.Success);
     }
 

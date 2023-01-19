@@ -6,6 +6,8 @@ authors: [ goldenpotato137@gmail.com ]
 load: STARTUP
 loadbefore:
   - Multiverse-Core
+softdepend:
+  - PlaceholderAPI
 commands:
   tide:
     description: "Tide"
