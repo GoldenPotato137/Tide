@@ -1,5 +1,7 @@
 #简体中文：zh-CN
+#完成语言设置后请手动删除插件目录下的locale.yml,并重载(/tide reload)
 #English: en-US
+#After setting the language, you need to delete locale.yml in the plugin folder manually, and reload (/tide reload)
 Language: en-US
 
 #启用潮汐系统的世界(名字)
@@ -7,10 +9,6 @@ Language: en-US
 #Worlds:
 #  - world
 Worlds: []
-
-#是否在控制台显示计算进度
-#whether to display the calculation progress in the console
-DisplayCalcInfo: true
 
 #每tick允许的最长计算时间，单位毫秒
 #The longest calculation time allowed per tick, in milliseconds

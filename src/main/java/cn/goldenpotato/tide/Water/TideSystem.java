@@ -55,6 +55,8 @@ public class TideSystem
      */
     public static void Load(World world)
     {
+        if(worlds.contains(world)) return; //已经加载过了
+
         Util.Log(ChatColor.GREEN + "Loading chunk data for " + world.getName());
         File worldFolder = new File(Tide.instance.getDataFolder(), world.getName());
         JsonArray array = JsonUtil.LoadJsonArray("inner-chunks.json", worldFolder);
