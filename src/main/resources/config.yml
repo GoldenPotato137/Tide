@@ -14,6 +14,11 @@ Worlds: []
 #The longest calculation time allowed per tick, in milliseconds
 MaxTimeConsume: 10
 
+#是否在退潮的时候移除必须含水的方块（如水生植物）
+#Whether to remove blocks that must contain water (such as aquatic plants) during ebb
+#https://minecraft.fandom.com/wiki/Waterlogging
+RemoveWaterLog: false
+
 #潮汐时刻
 #Tide time
 #每一个小时对应1000tick，早上六点为0tick，依次类推，比如说早上七点为1000tick

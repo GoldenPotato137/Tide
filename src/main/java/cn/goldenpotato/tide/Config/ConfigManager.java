@@ -45,6 +45,9 @@ public class ConfigManager
         reader.set("CalcRange", null); //删除旧版本的配置
         reader.set("FlowRange", null); //删除旧版本的配置
 
+        //WaterLog
+        config.removeWaterLog = reader.getBoolean("RemoveWaterLog", false);
+
         //Tide
         List<TideTime> tideTime = TideSystem.tideTime;
         ConfigurationSection in = reader.getConfigurationSection("Tide");
@@ -74,6 +77,7 @@ public class ConfigManager
         FileConfiguration writer = Tide.instance.getConfig();
         writer.set("Worlds", config.worlds);
         writer.set("MaxTimeConsume", config.maxTimeConsume);
+        writer.set("RemoveWaterLog", config.removeWaterLog);
         writer.set("Debug", config.debug);
         Tide.instance.saveConfig();
     }

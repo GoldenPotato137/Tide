@@ -156,7 +156,7 @@ public class TideSystem
                 }
     }
 
-    /** 获取当前海平面高度*/
+    /** 获取当前海平面高度偏移量*/
     public static int SeaLevel(World world)
     {
         return _seaLevel.get(world);
